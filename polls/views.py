@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .models import Question
+from django.utils import timezone
 
 def index(request):
     latest_question_list = Question.objects.order_by('-pub_date')[:5]
@@ -27,3 +28,10 @@ def vote(request, question_id):
     choice.votes += 1
     choice.save()
     return HttpResponseRedirect(reverse("results", args=(q.id,)))
+
+def index(request):
+    latest_question_list = (
+        Question.objects.filter(pub_date__lte=timezone.now())
+        .order_by("-pub_date")[:5]
+    )
+    return render(request, "polls/index.html", {"latest_question_list": latest_question_list})
